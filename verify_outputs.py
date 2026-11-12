@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
-"""Verify the pipeline outputs contain no identifiers and are consistent.
+"""Checks the outputs after a run: no identifier columns or raw values
+left in any output file, hashes look right, row counts add up.
 
-Checks:
-  1. No forbidden (identifier) columns in the de-identified export.
-  2. No raw identifier VALUE appears in any output file.
-  3. No email pattern appears in any output file.
-  4. Audit log parses as JSONL, has one event per stage, in order, and
-     contains no identifier values (field *names* in the metadata are
-     expected — e.g. fields_masked lists which columns were masked).
-  5. Hashes are 64-char hex; participant pseudonyms are unique.
-  6. Age bands, birth years, enrollment years are valid.
-  7. Row counts are consistent with the report.
-  8. Exported lab values are within plausible ranges or null.
-
-Usage: python verify_outputs.py   (run from the project root, after a run)
+Run it from the project root, after a run: python verify_outputs.py
 """
 
 import json

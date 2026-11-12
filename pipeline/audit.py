@@ -1,9 +1,6 @@
-"""JSONL audit logging for the secure research-data pipeline.
-
-Every pipeline stage writes one audit event with a UTC timestamp,
-row counts in/out, and counts only — never participant values, names,
-emails, dates of birth, or hashes. The audit log is therefore safe to
-retain and share alongside the de-identified export.
+"""One audit event per pipeline stage, written to a JSONL log. Only row
+counts and timestamps, never participant values, so the log is safe to
+keep next to the de-identified export.
 """
 
 from __future__ import annotations

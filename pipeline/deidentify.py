@@ -1,19 +1,12 @@
-"""De-identification for the secure research-data pipeline.
+"""Strips identifiers out of a validated frame before export.
 
-Direct identifiers are never carried into the export:
-  - full_name, email, phone  -> dropped; replaced by salted SHA-256 hashes
-  - participant_id           -> replaced by a salted SHA-256 pseudonym
-                                 (stable per participant, so rows stay
-                                 joinable across extracts)
-  - date_of_birth            -> age band + birth year only
-  - enrollment_date          -> enrollment year only
+Names, emails and study IDs get replaced by a salted SHA-256 hash.
+Phone numbers are dropped. Dates of birth become an age band plus birth
+year, and enrollment dates become just the year.
 
-The salt must be supplied by the operator (``--salt`` or the
-``PIPELINE_SALT`` environment variable). A development default is used
-only when neither is given, and the run is flagged as such in the audit
-log. In a real deployment the salt would live in a secrets store and
-never in source control; the hashes here are a demonstration of the
-technique, not a claim of production-grade key management.
+The salt comes from --salt or PIPELINE_SALT. If neither is set it falls
+back to a dev default and the run gets flagged in the audit log. In real
+use the salt would live in a secrets store, not in the code.
 """
 
 from __future__ import annotations

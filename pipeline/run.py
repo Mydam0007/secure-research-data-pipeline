@@ -1,18 +1,13 @@
-"""Pipeline runner: generate -> validate -> de-identify -> export -> report.
+"""Runs the whole pipeline: generate, validate, de-identify, export, report.
 
-Usage:
     python run_pipeline.py
     python run_pipeline.py --rows 2000 --seed 7 --salt my-secret-salt
     python -m pipeline --rows 1200 --seed 42
 
-Outputs (all under --out-dir, default ``outputs/``):
-    deidentified_participants.csv   de-identified export, no raw identifiers
-    data_quality_report.json        machine-readable validation report
-    data_quality_report.md          human-readable validation report
-    audit_log.jsonl                 one JSON event per stage, counts only
-
-The raw synthetic file lives under ``data/raw/`` and is generated on
-first run (or with --regenerate). It is never written to outputs/.
+Outputs go to outputs/: the de-identified CSV, a data-quality report
+(JSON and Markdown), and the audit log. The raw file lives in data/raw/
+and is made on the first run (or with --regenerate). It never gets
+written to outputs/.
 """
 
 from __future__ import annotations
@@ -172,7 +167,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"export:            {summary['export_path']}")
     print(f"elapsed:           {summary['elapsed_seconds']}s")
     if summary["used_default_salt"]:
-        print("warning: using the default development salt — pass --salt or PIPELINE_SALT")
+        print("warning: using the default development salt. Pass --salt or PIPELINE_SALT")
 
 
 if __name__ == "__main__":

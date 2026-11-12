@@ -1,14 +1,9 @@
-"""Synthetic data generator for the secure research-data pipeline.
+"""Makes up the raw data. All 1,200 rows are fake, made with a fixed seed
+so every run with the same seed gives the same file.
 
-ALL records are SYNTHETIC. Names, emails, dates of birth, lab values and
-study IDs are invented by seeded random draws. There are no real people
-and no real patient data anywhere in this project.
-
-The generator deliberately injects a small, known rate of data-quality
-defects (missing values, out-of-range lab results, duplicate study IDs,
-malformed emails, invalid consent flags) so the validation stage has
-realistic work to do. Defect rates are fixed by the seed, so every run
-with the same seed produces the same raw file.
+A few bad rows get mixed in on purpose (missing values, out-of-range lab
+results, duplicate study IDs, bad emails, bad consent flags) so the
+validation step has something to catch.
 """
 
 from __future__ import annotations

@@ -1,21 +1,9 @@
-"""Schema and data-quality validation for the secure research-data pipeline.
+"""Checks the raw file before anything gets de-identified.
 
-Checks, in order:
-  1. Required columns are present.
-  2. Dates parse (date_of_birth, enrollment_date).
-  3. Critical failures -> row excluded from export:
-       - missing study ID (participant_id)
-       - duplicate study ID (keep first occurrence)
-       - consent flag not in {Y, N}
-       - unparseable date of birth, or age at enrollment outside 18-100
-  4. Soft failures -> value set to null, counted in the report:
-       - lab values outside plausible clinical ranges
-       - malformed email addresses (emails are dropped at de-identification
-         anyway; the count shows the raw file's quality)
-  5. Null counts per column.
-
-Nothing in the report contains participant values — only counts and
-field names — so the report itself is safe to share.
+Rows that fail a critical check get dropped (missing study ID, duplicate
+study ID, bad consent flag, date of birth that does not parse, or age at
+enrollment outside 18-100). Lab values outside a plausible range get set
+to null instead. The report only has counts, never participant values.
 """
 
 from __future__ import annotations
@@ -56,10 +44,8 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def validate(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Validate ``df`` and return ``(clean_df, report)``.
-
-    ``clean_df`` is the input with critical-failure rows removed and
-    out-of-range lab values set to null. ``report`` holds counts only.
+    """Returns (clean_df, report). clean_df has the bad rows removed and
+    the out-of-range lab values set to null. report holds counts only.
     """
     missing_cols = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing_cols:

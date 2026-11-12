@@ -127,11 +127,10 @@ add_hyperlink(p, "https://www.linkedin.com/in/nagaraju-mydam-160979259", "linked
 # Intro
 p = doc.add_paragraph()
 r = p.add_run(
-    "An end-to-end pipeline that ingests sensitive research-participant records, validates them, "
-    "de-identifies them, and exports an analysis-ready dataset — with a data-quality report and a "
-    "full audit log at every stage. Built to demonstrate the core practices of research data "
-    "engineering for regulated, sensitive data: prove quality, remove identifiers, and leave an "
-    "audit trail for every row."
+    "I built this pipeline to show how I handle sensitive research data: check the quality, "
+    "strip out anything that can identify a person, and keep a record of what happened to "
+    "every row. It takes in participant records, validates them, de-identifies them, and "
+    "exports a clean dataset, with a data-quality report and a full audit log."
 )
 r.font.size = Pt(9)
 
@@ -139,7 +138,7 @@ r.font.size = Pt(9)
 p = doc.add_paragraph()
 p.paragraph_format.space_before = Pt(2)
 p.paragraph_format.space_after = Pt(2)
-r = p.add_run("Generate  →  Ingest  →  Validate  →  De-identify  →  Export      +      data-quality report & audit log")
+r = p.add_run("Generate, validate, de-identify, export, plus a data-quality report and audit log")
 r.bold = True
 r.font.size = Pt(9)
 r.font.color.rgb = BLUE
@@ -147,10 +146,10 @@ r.font.color.rgb = BLUE
 # How it works
 heading("How it works")
 rows = [
-    ("Generate", "1,200 synthetic participant records from a fixed seed, so runs are reproducible; a known rate of defects is injected (missing values, out-of-range labs, duplicate study IDs, malformed emails, invalid consent flags)."),
-    ("Validate", "Schema, date-parsing and range checks. Rows failing critical checks are excluded and counted; out-of-range lab values are nulled and counted, never silently kept."),
-    ("De-identify", "Direct identifiers salted SHA-256 hashed (name, email, study ID); phone dropped entirely. Dates of birth become age bands plus birth year; enrollment dates become enrollment year. The export contains no raw identifiers, and a safety check fails the run if any identifier column remains."),
-    ("Report & audit", "Data-quality report (JSON + Markdown) and a JSONL audit log — one event per stage, with row counts and counts only, never participant values."),
+    ("Generate", "1,200 fake participant records from a fixed seed, so every run is the same. A few bad rows are mixed in on purpose: missing values, out-of-range labs, duplicate study IDs, bad emails, bad consent flags."),
+    ("Validate", "Schema, date-parsing and range checks. Rows that fail a critical check get dropped and counted. Out-of-range lab values get set to null and counted, never kept quietly."),
+    ("De-identify", "Names, emails and study IDs get hashed with a salted SHA-256 hash. Phone numbers are dropped. Dates of birth become an age band plus birth year, enrollment dates become just the year. The export has no raw identifiers in it, and the run fails if any identifier column is still there."),
+    ("Report & audit", "A data-quality report (JSON and Markdown) and a JSONL audit log, one event per stage. Both hold counts only, never participant values."),
 ]
 t = doc.add_table(rows=1, cols=2)
 t.style = "Table Grid"
@@ -167,8 +166,8 @@ for stage, desc in rows:
 t.columns[0].width = Inches(1.1)
 t.columns[1].width = Inches(6.2)
 
-# Measured results — single compact table, then one line of detail
-heading("Measured results (actual run, seed 42)")
+# Results table, then one line of detail
+heading("What came out of the run (seed 42)")
 res = doc.add_table(rows=1, cols=4)
 res.style = "Table Grid"
 res.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -187,19 +186,19 @@ for text, bold in [
     ("Nulled (124): ", True),
     ("glucose 51, HbA1c 31, cholesterol 24, systolic BP 10, diastolic BP 8.  ", False),
     ("Verification: ", True),
-    ("verify_outputs.py runs 21 independent checks (no identifier columns or raw values in any output, no email pattern, audit log parses as JSONL, hashes 64-char hex, row counts reconcile) — all 21 pass; same seed gives a byte-identical export. Pipeline time 0.05 s (0.54 s wall-clock).", False),
+    ("verify_outputs.py runs 21 checks on its own (no identifier columns or raw values in any output, no email pattern, audit log parses as JSONL, hashes are 64-char hex, row counts add up). All 21 pass, and the same seed gives a byte-identical export. Pipeline time 0.05 s (0.54 s wall-clock).", False),
 ]:
     r = p.add_run(text)
     r.bold = bold
     r.font.size = Pt(9)
 
 # Why it maps
-heading("Why it maps to the Research Data Engineer role")
+heading("What this shows for the Research Data Engineer role")
 for lead, rest in [
-    ("Secure pipelines for sensitive data: ", "ingest → validate → de-identify → export, with row counts tracked at every stage."),
-    ("De-identification: ", "salted hashing plus generalization — the techniques used for research datasets shared without exposing participants."),
-    ("Data quality & auditability: ", "a quality report that separates exclusion reasons by cause, and an audit log suitable for sponsor review — no participant data inside it."),
-    ("Reproducibility: ", "one command runs the whole pipeline from a seed; a Docker image runs it end to end with no manual steps."),
+    ("Secure pipelines for sensitive data: ", "take in, check, de-identify and export, with row counts tracked at every step."),
+    ("De-identification: ", "salted hashing plus generalization, the same techniques used when research datasets get shared without exposing participants."),
+    ("Data quality and auditability: ", "a quality report that splits out why each row was dropped, and an audit log fit for a sponsor review, with no participant data inside it."),
+    ("Reproducibility: ", "one command runs the whole pipeline from a seed, and a Docker image runs it end to end with no manual steps."),
 ]:
     p = doc.add_paragraph(style="List Bullet")
     p.paragraph_format.space_after = Pt(1)
@@ -215,7 +214,7 @@ p.paragraph_format.space_before = Pt(3)
 r = p.add_run("Stack: ")
 r.bold = True
 r.font.size = Pt(9)
-r = p.add_run("Python 3.12, pandas, Docker — nothing else.   Run it: ")
+r = p.add_run("Python 3.12, pandas, Docker. Nothing else.   Run it: ")
 r.font.size = Pt(9)
 r = p.add_run("pip install -r requirements.txt && python run_pipeline.py")
 r.italic = True
@@ -239,10 +238,11 @@ top.set(qn("w:color"), "CCCCCC")
 pBdr.append(top)
 pPr.append(pBdr)
 r = p.add_run(
-    "All data is synthetic — every record is invented by a seeded generator; no real people, no real patient data. "
-    "Independent portfolio project; not affiliated with, endorsed by, or built for the University of Southern California. "
-    "Hashing with a salt is pseudonymization, not anonymization. "
-    "This project demonstrates techniques; it is not a compliance certification and claims none."
+    "All the data is made up. Every record is fake, generated with a fixed seed, so there are no "
+    "real people and no real patient data here. This is my own project, not affiliated with, "
+    "endorsed by, or built for the University of Southern California. Hashing with a salt is "
+    "pseudonymization, not anonymization. This shows the technique; it is not a compliance "
+    "certification and does not claim to be one."
 )
 r.font.size = Pt(8)
 r.font.color.rgb = GREY
