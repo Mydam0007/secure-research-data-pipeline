@@ -1,0 +1,7 @@
+# Generated files — never committed (raw file looks like real PII even
+# though every record is synthetic; outputs are reproducible from the seed).
+data/
+outputs/
+__pycache__/
+*.pyc
+.venv/
